@@ -1,6 +1,6 @@
 import expressAsyncHandler from "express-async-handler"
 import AppError from "../utils/AppError.js"
-import { addProductService } from "../services/product.services.js"
+import { addProductService, getAllProductsService } from "../services/product.services.js"
 
 const addProduct = expressAsyncHandler(async (req, res, next) => {
 
@@ -11,7 +11,7 @@ const addProduct = expressAsyncHandler(async (req, res, next) => {
     if (!req.file) return next(new AppError('Image is required', 400))
 
     const imgURL = req.file.filename
-    const product = addProductService({ ...req.body, imgURL, userEmail: req.user})
+    const product = addProductService({ ...req.body, imgURL, userEmail: req.user })
 
     res.status(201).json({ message: 'Product Added succesfully' })
 })
@@ -19,6 +19,11 @@ const addProduct = expressAsyncHandler(async (req, res, next) => {
 const getAllProducts = expressAsyncHandler(async (req, res, next) => {
 
 
+    const email = req.user
+
+    const products = await getAllProductsService(email)
+
+    res.status(200).json({ message: 'Products found', products })
 })
 
 const getProductById = expressAsyncHandler(async (req, res, next) => {

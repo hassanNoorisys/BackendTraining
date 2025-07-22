@@ -33,7 +33,24 @@ const addProductService = async (product) => {
     if (!newProduct) throw new AppError('Something went wrong', 500)
 }
 
+const getAllProductsService = async (userEmail) => {
+
+    const products = await prisma.product.findMany({
+
+        where: {
+
+            userEmail
+        }
+    })
+
+    if (products.length < 1) throw new AppError('Products not found', 404)
+
+    return products
+}
+
+
 export {
 
-    addProductService
+    addProductService,
+    getAllProductsService
 }

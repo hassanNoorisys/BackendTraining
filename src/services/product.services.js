@@ -48,9 +48,54 @@ const getAllProductsService = async (userEmail) => {
     return products
 }
 
+const getProductByIdService = async (productFilter) => {
+
+    const { email, id } = productFilter
+
+    const products = await prisma.product.findUnique({
+
+        where: {
+
+            userEmail: email,
+            id: Number(id)
+        }
+    })
+
+    if (!products) throw new AppError('Product not found', 404)
+
+    return products
+}
+
+const getProductByDateService = async (productFilter) => {
+
+    const { email, date } = productFilter
+
+    const startDate = new Date(date);
+    const endDate = new Date(date);
+    endDate.setHours(23, 59, 59, 999);
+
+    const products = await prisma.product.findMany({
+        where: {
+
+            userEmail: email,
+            created_at: {
+
+                gte: startDate,
+                lte: endDate
+            }
+        }
+    })
+
+    if (!products || products.length == 0) throw new AppError('Products not found', 404)
+
+    return products
+}
+
 
 export {
 
     addProductService,
-    getAllProductsService
+    getAllProductsService,
+    getProductByIdService,
+    getProductByDateService
 }

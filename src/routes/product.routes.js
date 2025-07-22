@@ -5,12 +5,13 @@ import verifyUser from "../middlewares/verifyUser.js";
 
 const route = Router()
 
-route.post('/add', verifyUser, imageUpload.single('productImage'), addProduct)
+route.use(verifyUser)
 
-route.get('/:id', getProductById)
-    .get('/date', getProductByDate)
+route.post('/add', imageUpload.single('productImage'), addProduct)
+
+route.get('/date', getProductByDate)
     .get('/', getAllProducts)
-
+    .get('/:id', getProductById)
 
 route.delete('/:id', deleteProduct)
 

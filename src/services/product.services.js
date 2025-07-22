@@ -91,11 +91,34 @@ const getProductByDateService = async (productFilter) => {
     return products
 }
 
+const deleteProductService = async (productFilter) => {
 
+    try {
+
+        const product = await prisma.product.delete({
+
+            where: {
+
+                id: Number(productFilter)
+            }
+        })
+
+        if (!product) throw new AppError('Product not found', 404)
+
+        return product
+
+    } catch (error) {
+        if (error.code === 'P2025') {
+          
+            throw new AppError('Product not found', 404);
+        }
+    }
+}
 export {
 
     addProductService,
     getAllProductsService,
     getProductByIdService,
-    getProductByDateService
+    getProductByDateService,
+    deleteProductService
 }

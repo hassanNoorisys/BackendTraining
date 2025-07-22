@@ -1,6 +1,6 @@
 import expressAsyncHandler from "express-async-handler"
 import AppError from "../utils/AppError.js"
-import { addProductService, getAllProductsService, getProductByDateService, getProductByIdService } from "../services/product.services.js"
+import { addProductService, deleteProductService, getAllProductsService, getProductByDateService, getProductByIdService } from "../services/product.services.js"
 
 const addProduct = expressAsyncHandler(async (req, res, next) => {
 
@@ -55,6 +55,13 @@ const getProductByDate = expressAsyncHandler(async (req, res, next) => {
 
 const deleteProduct = expressAsyncHandler(async (req, res, next) => {
 
+    const id = req.params.id
+
+    if (!id) return next(new AppError('Id is mandatory', 400))
+
+    const product = await deleteProductService(id)
+
+    res.status(200).json({ message: 'Product deleted successfully', product })
 
 })
 

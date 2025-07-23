@@ -137,7 +137,11 @@ const getProductsService = async (filter, pageFilter) => {
 
         where: filter,
         skip: parseInt((pageNumber - 1) * pageSize),
-        take: parseInt(pageSize)
+        take: parseInt(pageSize),
+        omit: {
+            userId: true,
+            created_at: true
+        }
     })
 
     if (!products || products.length < 1) throw new AppError('Product not found', 404)

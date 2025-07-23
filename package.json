@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": " nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "prisma": "prisma",
+    "migrate": "prisma migrate dev --name init"
   },
   "author": "MohammedHassan",
   "license": "ISC",

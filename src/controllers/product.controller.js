@@ -93,7 +93,7 @@ const deleteProduct = expressAsyncHandler(async (req, res, next) => {
 
     const product = await deleteProductService(id)
 
-    res.status(200).json({ message: 'Product deleted successfully', product })
+    res.status(200).json({ message: 'Product deleted successfully', data: product })
 
 })
 
@@ -105,5 +105,6 @@ export {
     // getAllProducts,
     // getProductByDate,
     // getProductById,
+    
     deleteProduct
 }

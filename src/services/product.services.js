@@ -1,5 +1,8 @@
 import prisma from "../../config/db.config.js"
 import AppError from "../utils/AppError.js"
+import fs from 'fs/promises'
+import path from 'path'
+import { fileURLToPath } from "url";
 
 const addProductService = async (product) => {
 
@@ -93,8 +96,6 @@ const addProductService = async (product) => {
 //     return products
 // }
 
-
-
 const deleteProductService = async (productFilter) => {
 
     try {
@@ -108,6 +109,15 @@ const deleteProductService = async (productFilter) => {
         })
 
         if (!product) throw new AppError('Product not found', 404)
+
+        console.log(product)
+
+
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+
+        const productPath = path.join(__dirname, '../productImages/', product.imgURL)
+        await fs.unlink(productPath)
 
         return product
 

@@ -7,4 +7,6 @@ export default (err, req, res, next) => {
         status: err.status || 'error',
         message,
     });
+
+    console.log(err)
 }

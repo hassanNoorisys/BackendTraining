@@ -59,9 +59,48 @@ const loginUserService = async (userData) => {
     return { token }
 }
 
+const checkUserService = async (userData) => {
+
+    const user = await prisma.user.findUnique({
+        where: {
+            email: userData
+        }
+    })
+
+    if (!user) throw new AppError('User not present', 404)
+
+    if (user.isVerified) return true
+
+    return false
+}
+
+const verifyUserSevice = async (userData) => {
+
+    const { email } = userData
+    
+    const user = await prisma.user.findUnique({
+        where: {
+            email
+        }
+    })
+
+    if (!user) throw new AppError('User not present', 404)
+
+    await prisma.user.update({
+
+        where: {
+            email
+        },
+        data: {
+            isVerified: true
+        }
+    })
+}
 
 export {
 
     registerUserService,
-    loginUserService
+    loginUserService,
+    checkUserService,
+    verifyUserSevice
 }

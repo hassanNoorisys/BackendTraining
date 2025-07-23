@@ -23,7 +23,7 @@ const getAllProducts = expressAsyncHandler(async (req, res, next) => {
 
     const products = await getAllProductsService(email)
 
-    res.status(200).json({ message: 'Products found', products })
+    res.status(200).json({ message: 'Products found', data:products })
 })
 
 const getProductById = expressAsyncHandler(async (req, res, next) => {

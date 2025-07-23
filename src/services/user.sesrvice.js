@@ -2,6 +2,7 @@ import AppError from "../utils/AppError.js"
 import prisma from '../../config/db.config.js'
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken'
+import { v4 as uuid4 } from 'uuid'
 
 const registerUserService = async (userData) => {
 
@@ -24,6 +25,7 @@ const registerUserService = async (userData) => {
     const newUser = await prisma.user.create({
         data: {
 
+            id: uuid4(),
             name,
             email,
             password: hashPassword
@@ -54,7 +56,7 @@ const loginUserService = async (userData) => {
     }
 
     const SECRET_KEY = process.env.SECRET_KEY
-    const token = jwt.sign(user.email, SECRET_KEY)
+    const token = jwt.sign(user.id, SECRET_KEY)
 
     return { token }
 }
@@ -63,7 +65,7 @@ const checkUserService = async (userData) => {
 
     const user = await prisma.user.findUnique({
         where: {
-            email: userData
+            id: userData
         }
     })
 
@@ -76,11 +78,11 @@ const checkUserService = async (userData) => {
 
 const verifyUserSevice = async (userData) => {
 
-    const { email } = userData
-    
+    const { id } = userData
+
     const user = await prisma.user.findUnique({
         where: {
-            email
+            id
         }
     })
 
@@ -89,7 +91,7 @@ const verifyUserSevice = async (userData) => {
     await prisma.user.update({
 
         where: {
-            email
+            id
         },
         data: {
             isVerified: true

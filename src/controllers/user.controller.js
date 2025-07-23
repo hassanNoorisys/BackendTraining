@@ -28,17 +28,18 @@ const loginUser = expressAsyncHandler(async (req, res, next) => {
 
 const sendEmail = expressAsyncHandler(async (req, res, next) => {
 
-    const email = req.user
+    const id = req.user
+    const { email } = req.body
 
-    if (!email) return next(new AppError('Something went wrong', 500))
+    if (!id) return next(new AppError('Something went wrong', 500))
 
-    const isVerified = await checkUserService(email)
+    const isVerified = await checkUserService(id)
 
     if (isVerified) return res.status(200).json({ message: 'User is Already Verified' })
 
     const SECRET_KEY = process.env.SECRET_KEY
 
-    const token = jwt.sign({ email }, SECRET_KEY, { expiresIn: '10m' })
+    const token = jwt.sign({ id }, SECRET_KEY, { expiresIn: '10m' })
 
     const verificationLink = `${process.env.BASE_URL}/api/user/verify-email?token=${token}`;
 

@@ -4,7 +4,7 @@ import AppError from "../utils/AppError.js"
 const addProductService = async (product) => {
 
     const {
-        userEmail,
+        id,
         productName,
         productCategory,
         price,
@@ -18,7 +18,7 @@ const addProductService = async (product) => {
             user: {
 
                 connect: {
-                    email: userEmail,
+                    id
                 },
             },
 
@@ -31,6 +31,8 @@ const addProductService = async (product) => {
     })
 
     if (!newProduct) throw new AppError('Something went wrong', 500)
+
+    return newProduct
 }
 
 const getAllProductsService = async (userEmail) => {
@@ -109,7 +111,7 @@ const deleteProductService = async (productFilter) => {
 
     } catch (error) {
         if (error.code === 'P2025') {
-          
+
             throw new AppError('Product not found', 404);
         }
     }

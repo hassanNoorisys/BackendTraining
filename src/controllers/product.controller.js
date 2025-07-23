@@ -11,9 +11,9 @@ const addProduct = expressAsyncHandler(async (req, res, next) => {
     if (!req.file) return next(new AppError('Image is required', 400))
 
     const imgURL = req.file.filename
-    const product = addProductService({ ...req.body, imgURL, userEmail: req.user })
+    const newProduct = await addProductService({ ...req.body, imgURL, id: req.user })
 
-    res.status(201).json({ message: 'Product Added succesfully' })
+    res.status(201).json({ message: 'Product Added succesfully', data: newProduct })
 })
 
 const getAllProducts = expressAsyncHandler(async (req, res, next) => {

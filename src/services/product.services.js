@@ -1,119 +1,98 @@
-import prisma from "../../config/db.config.js"
-import AppError from "../utils/AppError.js"
-import fs from 'fs/promises'
-import path from 'path'
-import { fileURLToPath } from "url";
+import prisma from '../../config/db.config.js';
+import AppError from '../utils/AppError.js';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const addProductService = async (product) => {
+  const { id, productName, productCategory, price, productBrand, imgURL } =
+    product;
 
-    const {
-        id,
-        productName,
-        productCategory,
-        price,
-        productBrand,
-        imgURL,
-    } = product
+  const newProduct = await prisma.product.create({
+    data: {
+      user: {
+        connect: {
+          id,
+        },
+      },
 
+      productName,
+      productCategory,
+      price: Number(price),
+      productBrand,
+      imgURL,
+    },
+  });
 
-    const newProduct = await prisma.product.create({
-        data: {
-            user: {
+  if (!newProduct) throw new AppError('Something went wrong', 500);
 
-                connect: {
-                    id
-                },
-            },
-
-            productName,
-            productCategory,
-            price: Number(price),
-            productBrand,
-            imgURL,
-        }
-    })
-
-    if (!newProduct) throw new AppError('Something went wrong', 500)
-
-    return newProduct
-}
+  return newProduct;
+};
 
 const deleteProductService = async (productFilter) => {
+  try {
+    const product = await prisma.product.delete({
+      where: {
+        id: Number(productFilter),
+      },
+    });
 
-    try {
+    if (!product) throw new AppError('Product not found', 404);
 
-        const product = await prisma.product.delete({
+    console.log(product);
 
-            where: {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
 
-                id: Number(productFilter)
-            }
-        })
+    const productPath = path.join(
+      __dirname,
+      '../productImages/',
+      product.imgURL
+    );
+    await fs.unlink(productPath);
 
-        if (!product) throw new AppError('Product not found', 404)
-
-        console.log(product)
-
-
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
-
-        const productPath = path.join(__dirname, '../productImages/', product.imgURL)
-        await fs.unlink(productPath)
-
-        return product
-
-    } catch (error) {
-        if (error.code === 'P2025') {
-
-            throw new AppError('Product not found', 404);
-        }
+    return product;
+  } catch (error) {
+    if (error.code === 'P2025') {
+      throw new AppError('Product not found', 404);
     }
-}
+  }
+};
 
 const getProductsService = async (filter, pageFilter) => {
+  const { page, size } = pageFilter;
 
-    const { page, size } = pageFilter
+  let query = {};
+  if (filter.date) {
+    const startDate = new Date(filter.date);
+    const endDate = new Date(filter.date);
+    endDate.setHours(23, 59, 59, 999);
 
-    let query = {}
-    if (filter.date) {
+    query.created_at = {
+      gte: startDate,
+      lte: endDate,
+    };
+  }
 
-        const startDate = new Date(filter.date)
-        const endDate = new Date(filter.date)
-        endDate.setHours(23, 59, 59, 999)
+  const products = await prisma.product.findMany({
+    where: {
+      ...(filter.id && { id: filter.id }),
+      ...(filter.name && { name: filter.name }),
+      ...(filter.date && { created_at: query.created_at }),
+    },
 
-        query.created_at = {
+    skip: parseInt((page - 1) * size) || 0,
+    take: parseInt(size) || 5,
+    omit: {
+      userId: true,
+      created_at: true,
+    },
+  });
 
-            gte: startDate,
-            lte: endDate
-        }
-    }
+  if (!products || products.length < 1)
+    throw new AppError('Product not found', 404);
 
-    const products = await prisma.product.findMany({
+  return products;
+};
 
-        where: {
-
-            ...(filter.id && { id: filter.id }),
-            ...(filter.name && { name: filter.name }),
-            ...(filter.date && { created_at: query.created_at })
-        },
-
-        skip: parseInt((page - 1) * size) || 0,
-        take: parseInt(size) || 5,
-        omit: {
-            userId: true,
-            created_at: true
-        }
-    })
-
-    if (!products || products.length < 1) throw new AppError('Product not found', 404)
-
-    return products
-}
-
-export {
-
-    addProductService,
-    getProductsService,
-    deleteProductService
-}
+export { addProductService, getProductsService, deleteProductService };
